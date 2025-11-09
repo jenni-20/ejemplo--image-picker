@@ -64,7 +64,7 @@ const onNewImage = () => {
 
     const onTakedPicture = (uri:string) => {
     setCameraOpen(false);
-    setImage(uri); // se mostrará en el preview para Guardar/Cancelar
+    setImage(uri);
     };
 
 
@@ -81,16 +81,13 @@ const onNewImage = () => {
         <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
         <Text style={styles.title}>Origen de la imagen</Text>
-
-            <View style={styles.buttonContainer}>
+        <View style={styles.buttonContainer}>
             <TouchableOpacity onPress={openCamera}>
                 <Text style={styles.button}>Camara</Text>
             </TouchableOpacity>
-
             <TouchableOpacity onPress={pickImage}>
                 <Text style={styles.button}>Galeria</Text>
             </TouchableOpacity>
-
             <TouchableOpacity onPress={() => setOpen(false)}>
                 <Text style={styles.cancelButton}>Cancelar</Text>
             </TouchableOpacity>
@@ -98,17 +95,14 @@ const onNewImage = () => {
         </View>
         </View>
     );
-
     return (
     <>
-        <TouchableOpacity onPress={()=> setOpen(true)}>
+    <TouchableOpacity onPress={()=> setOpen(true)}>
         <Ionicons name="camera-outline" size={32} color="green" />
         </TouchableOpacity>
-
         <Modal visible={open} transparent animationType="slide">
         {/* si no hay imagen, y camara cerrada, mostrar menu */}
         {!image && !cameraOpen ? renderMenu : null }
-
         {/* si la camara esta abierta, mostrar CamaraComponent */}
         {cameraOpen ? (
             <CamaraComponent
@@ -159,12 +153,12 @@ const styles = StyleSheet.create({
     },
     button: {
     color: 'darkblue',
-    fontWeight: '700', 
+    fontWeight: '700',
     fontSize: 22,
     },
     cancelButton: {
     color: 'red',
-    fontWeight: '700', 
+    fontWeight: '700',
     fontSize: 20,
     },
 });
