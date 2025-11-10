@@ -6,7 +6,7 @@ import { ImagePicker } from "./componets/ImagePicker";
 import { useState } from "react";
 
 export function GalleryView() {
-  //coleccion de imagenes(estados)
+  //coleccion de imagenes
     const [images, setImages] = useState<string[]>([]);
 
   //recibir la nueva imagen
