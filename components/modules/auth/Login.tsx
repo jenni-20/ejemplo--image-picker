@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Alert, StyleSheet, View, AppState, TextInput, Text, TouchableOpacity } from 'react-native'
 import { supabase } from '@/lib/supabase'
 
-// refresco de sesión (lo de Supabase lo dejamos igual)
+
 AppState.addEventListener('change', (state) => {
     if (state === 'active') {
         supabase.auth.startAutoRefresh()
@@ -10,7 +10,6 @@ AppState.addEventListener('change', (state) => {
         supabase.auth.stopAutoRefresh()
     }
 })
-
 export default function Auth() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -64,7 +63,7 @@ export default function Auth() {
                 />
             </View>
 
-            {/* AQUÍ SOLO LE AGREGUÉ EL TEXTO Y ESTILO */}
+
             <View style={[styles.verticallySpaced, styles.mt20]}>
                 <TouchableOpacity
                     disabled={loading}
@@ -103,7 +102,7 @@ const styles = StyleSheet.create({
     mt20: {
         marginTop: 20,
     },
-    // 👇 SOLO AGREGUÉ ESTO
+    
     button: {
         backgroundColor: '#082F53',
         paddingVertical: 10,

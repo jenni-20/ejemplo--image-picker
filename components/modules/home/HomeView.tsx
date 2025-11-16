@@ -8,7 +8,6 @@ export function HomeView() {
 
     return (
         <View style={styles.container}>
-            {/* BOTÓN CUENTA DE USUARIO (solo junté el Text con el onPress) */}
             <TouchableOpacity
                 onPress={() => router.push('/account')}
                 style={styles.button}
@@ -16,7 +15,6 @@ export function HomeView() {
                 <Text style={styles.buttonText}>Cuenta de usuario</Text>
             </TouchableOpacity>
 
-            {/* BOTÓN GALERÍA */}
             <TouchableOpacity
                 onPress={() => router.push('/gallery')}
                 style={styles.button}
@@ -32,11 +30,11 @@ const styles = StyleSheet.create({
         padding: 60,
     },
     button: {
-        backgroundColor: '#0b6cc8ff',
+        backgroundColor: '#159509ff',
         paddingVertical: 10,
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        marginBottom: 16,
+        paddingHorizontal: 30,
+        borderRadius: 10,
+        marginBottom: 40,
     },
     buttonText: {
         color: 'white',
