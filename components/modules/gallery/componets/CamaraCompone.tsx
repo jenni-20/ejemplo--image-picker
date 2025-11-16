@@ -54,14 +54,24 @@
         <View style={styles.container}>
         <CameraView ref={ref} style={styles.camera} facing={facing} />
         <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={onCancel} style={styles.button}>
-            <Ionicons name="close" size={35} color="#d81111ff" />
+            <TouchableOpacity 
+            onPress={onCancel} 
+            style={styles.button}>
+            <Ionicons name="close" 
+            size={35} 
+            color="#d81111ff" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={takePicture} style={styles.button}>
-            <Ionicons name="camera" size={40} color="white" />
+            <TouchableOpacity 
+            onPress={takePicture} 
+            style={styles.button}>
+            <Ionicons name="camera" 
+            size={40} color="white" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={toggleCameraFacing} style={styles.button}>
-            <Ionicons name="camera-reverse-outline" size={35} color="white" />
+            <TouchableOpacity 
+            onPress={toggleCameraFacing} 
+            style={styles.button}>
+            <Ionicons name="camera-reverse-outline" 
+            size={35} color="white" />
             </TouchableOpacity>
         </View>
         </View>
