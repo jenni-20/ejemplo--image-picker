@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     mt20: {
         marginTop: 20,
     },
-    
+
     button: {
         backgroundColor: '#082F53',
         paddingVertical: 10,

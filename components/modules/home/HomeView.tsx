@@ -21,6 +21,13 @@ export function HomeView() {
             >
                 <Text style={styles.buttonText}>Galería</Text>
             </TouchableOpacity>
+            
+            <TouchableOpacity
+                onPress={() => router.push('/notas')}
+                style={styles.button}
+            >
+                <Text style={styles.buttonText}>Notas</Text>
+            </TouchableOpacity>
         </View>
     )
 }
@@ -30,7 +37,7 @@ const styles = StyleSheet.create({
         padding: 60,
     },
     button: {
-        backgroundColor: '#159509ff',
+        backgroundColor: '#095f95ff',
         paddingVertical: 10,
         paddingHorizontal: 30,
         borderRadius: 10,
@@ -41,4 +48,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '600',
     },
+    
+
 })

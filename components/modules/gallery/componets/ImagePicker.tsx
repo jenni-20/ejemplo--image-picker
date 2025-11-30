@@ -100,7 +100,9 @@ const onNewImage = () => {
     <TouchableOpacity onPress={()=> setOpen(true)}>
         <Ionicons name="camera-outline" size={32} color="green" />
         </TouchableOpacity>
-        <Modal visible={open} transparent animationType="slide">
+        <Modal visible={open} 
+        transparent 
+        animationType="slide">
         {/* si no hay imagen, y camara cerrada, mostrar menu */}
         {!image && !cameraOpen ? renderMenu : null }
         {/* si la camara esta abierta, mostrar CamaraComponent */}
