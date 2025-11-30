@@ -149,7 +149,7 @@ export function NotasView() {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Mis notitas</Text>
+            <Text style={styles.title}>Mis notita de 4to B</Text>
 
             {loading ? (
                 <Text>Cargando notas...</Text>
