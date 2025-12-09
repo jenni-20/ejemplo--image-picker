@@ -1,78 +1,95 @@
-    // ImgenPriview.tsx
-    // Visualizador de imagen seleccionada / capturada
+import { supabase } from "@/lib/supabase";
+import { Ionicons } from "@expo/vector-icons";
+import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
 
-    import { Ionicons } from "@expo/vector-icons";
-    import { TouchableOpacity, StyleSheet, View, Image } from "react-native";
-
-    type props = {
+type Props = {
     uri: string;
     onCancel: () => void;
+    newPhoto: () => void;
     onSave: (uri: string) => void;
-    onNewImage: () => void;
+};
+
+export function ImagePreview({ uri, onCancel, newPhoto, onSave }: Props) {
+
+    const uploadImage = async (uri: string) => {
+        try {
+            const fileData = await fetch(uri).then(res => res.arrayBuffer());
+
+            // Subir directamente a la raíz del bucket
+            const fileName = `public/photo-${Date.now()}.jpg`;
+
+            const { error } = await supabase.storage
+                .from("galeria")
+                .upload(fileName, fileData, {
+                    contentType: "image/jpg",
+
+                });
+
+            if (error) {
+                console.error("Error al subir:", error.message);
+            } else {
+                console.log("Imagen subida correctamente:", fileName);
+
+                // Obtener URL pública
+                const { data } = supabase.storage
+                    .from("galeria")
+                    .getPublicUrl(fileName);
+
+                console.log("URL pública obtenida:", data.publicUrl);
+                const { data: insertData, error: dbError } = await supabase
+                    .from("images")
+                    .insert([{
+                        id: fileName,
+                        url: data.publicUrl
+                    }]);
+
+                // Guardar en el estado local (opcional)
+                onSave(data.publicUrl);
+            }
+        } catch (error) {
+            console.error("Error en uploadImage:", error);
+        }
     };
 
-    export function ImagePreview({
-    uri,
-    onCancel,
-    onSave,
-    onNewImage,
-    }: props) {
+
+
     return (
         <View style={styles.container}>
-        <Image
-            source={{ uri }}
-            style={styles.image}
-            resizeMode="contain"
-        />
-
-        {/* Sección de botones: cerrar, guardar, elegir otra */}
-        <View style={styles.buttons}>
-            <TouchableOpacity onPress={onCancel} style={styles.buttonIcon}>
-            <Ionicons name="close" size={28} color="#ffffff" />
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => onSave(uri)} style={styles.buttonIcon}>
-            <Ionicons name="save-outline" size={28} color="#ffffff" />
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={onNewImage} style={styles.buttonIcon}>
-            <Ionicons name="camera-outline" size={28} color="#ffffff" />
-            </TouchableOpacity>
-        </View>
+            <Image style={styles.photo} source={{ uri }} />
+            <View style={styles.buttons}>
+                <TouchableOpacity onPress={onCancel}>
+                    <Ionicons name="close" size={32} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => uploadImage(uri)}>
+                    <Ionicons name="save-outline" size={32} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={newPhoto}>
+                    <Ionicons name="camera-outline" size={32} color="white" />
+                </TouchableOpacity>
+            </View>
         </View>
     );
-    }
+}
 
-    const styles = StyleSheet.create({
+const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#000000",
         justifyContent: "center",
-        alignItems: "center",
+        backgroundColor: "black",
     },
-    image: {
+    photo: {
         height: "100%",
-        width: "100%",
+        objectFit: "contain",
     },
     buttons: {
+        display: "flex",
+        flexDirection: "row",
         position: "absolute",
-        bottom: 32,
+        bottom: 30,
         left: 0,
         right: 0,
-        width: "100%",
-        flexDirection: "row",
-        justifyContent: "space-between",
+        backgroundColor: "transparent",
         alignItems: "center",
-        paddingHorizontal: 24,
+        justifyContent: "space-around",
     },
-    buttonIcon: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        backgroundColor: "rgba(255,255,255,0.15)",
-        justifyContent: "center",
-        alignItems: "center",
-        borderWidth: 1,
-        borderColor: "rgba(255,255,255,0.25)",
-    },
-    });
+});

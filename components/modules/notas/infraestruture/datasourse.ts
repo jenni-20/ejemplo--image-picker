@@ -20,7 +20,7 @@ export async function saveNote(note: Notas): Promise<Notas | null> {
         const { data, error } = await supabase
             .from('notes4b')
             .insert([
-                { 
+                {
                     title: note.title,
                     description: note.description,
                     date: note.date
@@ -31,12 +31,12 @@ export async function saveNote(note: Notas): Promise<Notas | null> {
         //o retomar null
         return data !== null ? data[0] : null;
     } else {
-        //actualizar la nota 
+        //actualizar la nota
         //update notes4b set title ='aaa', description = 'aaa' where
         //id ='aaaaa'
         const { data, error } = await supabase
             .from('notes4b')
-            .update({ 
+            .update({
                 title: note.title,
                 description: note.description,
             })
@@ -48,4 +48,3 @@ export async function saveNote(note: Notas): Promise<Notas | null> {
         return data !== null ? data[0] : null;
     }
 }
-

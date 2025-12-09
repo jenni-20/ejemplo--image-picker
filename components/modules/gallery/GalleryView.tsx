@@ -1,25 +1,27 @@
-//galeria
-//botón para añadir la imagen
+// galeria
+// botón para añadir la imagen
 
-import { StyleSheet, View, FlatList, Image, Pressable, Alert, Text, ImageBackground } from "react-native";
-import { ImagePicker } from "./componets/ImagePicker";
-import { useState } from "react";
+import {StyleSheet,View,FlatList,Image,Pressable,Alert,Text,ImageBackground,} from "react-native";
+import { ImagePicker } from "./componets/ImagePicker"; // revisa que la ruta sea correcta
+import React, { useState } from "react";
 
 export function GalleryView() {
     const [images, setImages] = useState<string[]>([]);
-    const onAdded = (uri: string) => {
 
-        setImages([uri, ...images]);
+    // Cuando se selecciona / toma una foto
+    const addPhoto = (uri: string) => {
+        setImages((prev) => [uri, ...prev]);
     };
 
-
+    // Eliminar una imagen de la lista
     const onRemove = (uri: string) => {
         Alert.alert("Eliminar imagen", "¿Quieres quitar esta imagen?", [
             { text: "Cancelar", style: "cancel" },
             {
                 text: "Eliminar",
                 style: "destructive",
-                onPress: () => setImages(images.filter((u) => u !== uri)),
+                onPress: () =>
+                    setImages((prev) => prev.filter((u) => u !== uri)),
             },
         ]);
     };
@@ -32,24 +34,28 @@ export function GalleryView() {
             style={styles.background}
         >
             <View style={styles.container}>
+                <ImagePicker onImageSelected={addPhoto} />
 
-                <ImagePicker onImageSelected={onAdded} />
-
-
-                <FlatList
-                    data={images}
-                    keyExtractor={(uri, i) => uri + i}
-                    numColumns={4}
-                    columnWrapperStyle={styles.row}
-                    contentContainerStyle={styles.listContent}
-                    showsVerticalScrollIndicator={false}
-                    renderItem={({ item }) => (
-                        <Pressable style={styles.card} onLongPress={() => onRemove(item)}>
-                            <Image source={{ uri: item }} style={styles.img} />
-                        </Pressable>
-                    )}
-
-                />
+                {images.length === 0 ? (
+                    <Text style={styles.emptyText}>No hay imágenes aún</Text>
+                ) : (
+                    <FlatList
+                        data={images}
+                        keyExtractor={(uri, i) => uri + i}
+                        numColumns={4}
+                        columnWrapperStyle={styles.row}
+                        contentContainerStyle={styles.listContent}
+                        showsVerticalScrollIndicator={false}
+                        renderItem={({ item }) => (
+                            <Pressable
+                                style={styles.card}
+                                onLongPress={() => onRemove(item)}
+                            >
+                                <Image source={{ uri: item }} style={styles.img} />
+                            </Pressable>
+                        )}
+                    />
+                )}
             </View>
         </ImageBackground>
     );

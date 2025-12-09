@@ -9,17 +9,33 @@ type Props = {
 };
 
 export default function NoteCard({ nota, onEdit, onDelete }: Props) {
+
+    // Formatear fecha de manera segura
+    let formattedDate = "";
+
+    if (nota.date) {
+        const d = nota.date instanceof Date ? nota.date : new Date(nota.date as any);
+
+        if (!isNaN(d.getTime())) {
+            formattedDate = d.toLocaleDateString("es-MX", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+            });
+        }
+    }
+
     return (
         <View style={styles.card}>
             <View style={styles.headerRow}>
                 <Text style={styles.title}>{nota.title}</Text>
-                <Text style={styles.date}>{new Date(nota.date).toLocaleDateString()}</Text>
+                {/* ANTES: new Date(nota.date).toLocaleDateString() */}
+                <Text style={styles.date}>{formattedDate}</Text>
             </View>
 
             <Text style={styles.description} numberOfLines={3}>
                 {nota.description}
             </Text>
-
             <View style={styles.actions}>
                 <TouchableOpacity style={styles.editBtn} onPress={onEdit}>
                     <Text style={styles.editText}>Editar</Text>

@@ -119,7 +119,7 @@ const onNewImage = () => {
             uri={image}
             onCancel={() => setImage(null)}
             onSave={onSave}
-            onNewImage={onNewImage}
+            newPhoto={onNewImage}
             />
             ) : null}
             </Modal>

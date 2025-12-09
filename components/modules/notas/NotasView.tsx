@@ -1,11 +1,10 @@
 import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
-import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View, } from "react-native";
+import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import NotasCard from "./NotasCard";
 import NoteModal from "./NotasModal";
 import { Notas } from "./domain/nota.interface";
-import { saveNote } from "./infraestruture/datasourse";
 
 // inicializar una nueva notas
 const addNotas: Notas = {
@@ -16,51 +15,42 @@ const addNotas: Notas = {
 };
 
 export function NotasView() {
-    // nota que se va a editarr o crear
-    // lo vamos a usar para abrir o cerrar el modal
-    const [selectedNote, setSelectedNote] = useState<Notas | null>(null);
+    //estado para registro de notas
+    const [notes, setNotes] = useState<Notas[]>([]);
 
-    //recibir la nota
-    const onNotechanged = (nota: Notas) => {
-        //agregar la nota a la colecion de notas
-        //mandar a guardar la nota en la BD
-        saveNote(nota)
-            .then(result => {
-                if (result) {
-                    //si al nota es nueva agregar al estado de notas
-                    if (result.id === "0") {
-                        setNotes([
-                            result,
-                            ...notes,
-                        ])
-                    }
-                }
-            })
-    }
-    const [notes, setNotes] = useState<Notas[]>([
-        {
-            id: "1",
-            title: "Ejemplo de nota",
-            description: "Este es un ejemplo de nota",
-            date: new Date(),
-        }
-    ]);
+    //estado para editar o crear nota
+    //se va a usar para abrir o cerrar el modal
+    const [selectedNote, setSelectedNote] = useState<Notas | null>(null);
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
 
+    const addNote = () => {
+        //inicializar una nueva nota
+        setSelectedNote({
+            id: "",
+            title: "",
+            description: "",
+            date: new Date(), // fecha actual
+        });
+        setIsEditing(false);
+    };
 
-    //carga las notas cuand se ingresa a esta pantalla
+    const onCancelModal = () => {
+        setSelectedNote(null);
+    };
+
     useEffect(() => {
         fetchNotes();
     }, []);
 
     const fetchNotes = async () => {
+        // cargar las notas cuando se ingrese a esta pantalla (efecto cuando se ingrese a la pantalla)
         setLoading(true);
         const { data } = await supabase.auth.getUser();
         const user = data?.user;
 
         if (!user) {
-            // Usuario no autenticado; mostrar la nota de ejemplo
+            // Usuario no autenticado
             setLoading(false);
             return;
         }
@@ -71,20 +61,26 @@ export function NotasView() {
             .eq("user_id", user.id)
             .order("fecha", { ascending: false });
 
+        console.log("Fetched notes raw:", { notesData, error });
+
         if (error) {
             Alert.alert("Error", "No se pudieron cargar las notas.");
-            // No sobrescribir notas en caso de error; mantener el ejemplo
         } else if (notesData && notesData.length > 0) {
-            // Solo actualizar si hay notas en la base de datos
-            setNotes(notesData as Notas[]);
-        }
-        // Si notesData está vacío, mantener la nota de ejemplo en el estado
-        setLoading(false);
-    };
 
-    const handleAddNew = () => {
-        setSelectedNote(addNotas);
-        setIsEditing(false);
+            const mapped: Notas[] = notesData.map((nota: any) => ({
+                id: nota.id,
+                title: nota.title,
+                description: nota.description,
+                date: nota.fecha ?? null,
+            }));
+
+            console.log("mapped notes:", mapped);
+            setNotes(mapped);
+        } else {
+            setNotes([]);
+        }
+
+        setLoading(false);
     };
 
     const handleEdit = (note: Notas) => {
@@ -110,8 +106,10 @@ export function NotasView() {
         ]);
     };
 
-    const handleSave = async () => {
-        if (!selectedNote) {
+    // guardar desde el modal
+    const handleSave = async (updatedNote?: Notas) => {
+        const note = updatedNote ?? selectedNote;
+        if (!note) {
             Alert.alert("Error", "No hay nota seleccionada.");
             return;
         }
@@ -123,24 +121,46 @@ export function NotasView() {
             return;
         }
 
+
+        // Si es nueva nota, usamos ahora; si edita, intentamos usar la que trae.
+        let fechaValue: string;
+
+        if (note.date instanceof Date && !isNaN(note.date.getTime())) {
+            fechaValue = note.date.toISOString();
+        } else if (typeof note.date === "string" && note.date.trim() !== "" && !isNaN(new Date(note.date).getTime())) {
+            fechaValue = new Date(note.date).toISOString();
+        } else {
+            fechaValue = new Date().toISOString();
+        }
+
         const noteToSave = {
-            title: selectedNote.title,
-            description: selectedNote.description,
-            date: selectedNote.date,
+            title: note.title,
+            description: note.description,
+            fecha: fechaValue,
             user_id: user.id,
         };
 
-        if (isEditing) {
-
+        if (isEditing && note.id) {
             const { error } = await supabase
                 .from("notes")
                 .update(noteToSave)
-                .eq("id", selectedNote.id);
-            if (error) Alert.alert("Error", "No se pudo actualizar la nota.");
-        } else {
+                .eq("id", note.id);
 
-            const { error } = await supabase.from("notes").insert(noteToSave);
-            if (error) Alert.alert("Error", "No se pudo guardar la nota.");
+            if (error) {
+                console.log("Update error:", JSON.stringify(error));
+                Alert.alert("Error", "No se pudo actualizar la nota.");
+            }
+        } else {
+            const { data, error } = await supabase
+                .from("notes")
+                .insert(noteToSave)
+                .select();
+
+            console.log("Insert result:", { data, error });
+
+            if (error) {
+                Alert.alert("Error", "No se pudo guardar la nota.");
+            }
         }
 
         setSelectedNote(null);
@@ -149,71 +169,31 @@ export function NotasView() {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Mis notita de 4to B</Text>
+            <Text style={styles.title}>Mis notitas </Text>
 
             {loading ? (
-                <Text>Cargando notas...</Text>
+                <Text></Text>
             ) : (
                 <FlatList
                     data={notes}
-                    keyExtractor={(item) => item.id.toString()}
+                    keyExtractor={(item) => item.id!.toString()}
                     renderItem={({ item }) => (
                         <NotasCard
                             nota={item}
                             onEdit={() => handleEdit(item)}
-                            onDelete={() => handleDelete(item.id)}
+                            onDelete={() => handleDelete(item.id!)}
                         />
                     )}
-
                     ListEmptyComponent={<Text style={styles.emptyText}>No tienes notas todavía.</Text>}
                 />
             )}
 
-            <TouchableOpacity
-                style={styles.fab}
-                onPress={handleAddNew}>
-                <Ionicons name="add"
-                    size={30}
-                    color="white" />
+            <TouchableOpacity style={styles.fab} onPress={addNote}>
+                <Ionicons name="add" size={30} color="white" />
             </TouchableOpacity>
 
             {selectedNote && (
-                <NoteModal
-                    nota={selectedNote}
-                    onSave={(updatedNote: Notas) => {
-                        const handleSaveModal = async () => {
-                            const { data } = await supabase.auth.getUser();
-                            const user = data?.user;
-                            if (!user) {
-                                Alert.alert("Usuario no autenticado", "Inicia sesión para guardar notas.");
-                                return;
-                            }
-
-                            const noteToSave = {
-                                title: updatedNote.title,
-                                description: updatedNote.description,
-                                date: updatedNote.date,
-                                user_id: user.id,
-                            };
-
-                            if (isEditing) {
-                                const { error } = await supabase
-                                    .from("notes")
-                                    .update(noteToSave)
-                                    .eq("id", updatedNote.id);
-                                if (error) Alert.alert("Error", "No se pudo actualizar la nota.");
-                            } else {
-                                const { error } = await supabase.from("notes").insert(noteToSave);
-                                if (error) Alert.alert("Error", "No se pudo guardar la nota.");
-                            }
-
-                            setSelectedNote(null);
-                            fetchNotes();
-                        };
-                        handleSaveModal();
-                    }}
-                    onCancel={() => setSelectedNote(null)}
-                />
+                <NoteModal nota={selectedNote} onSave={handleSave} onCancel={onCancelModal} />
             )}
         </View>
     );
@@ -230,7 +210,7 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         marginBottom: 20,
         marginTop: 70,
-        color: '#2D3748',
+        color: "#2D3748",
         alignItems: "center",
     },
     fab: {
@@ -246,9 +226,9 @@ const styles = StyleSheet.create({
         elevation: 8,
     },
     emptyText: {
-        textAlign: 'center',
+        textAlign: "center",
         marginTop: 50,
         fontSize: 16,
-        color: '#6c757d',
+        color: "#6c757d",
     },
 });

@@ -4,7 +4,7 @@ import { TouchableOpacity, StyleSheet, View, Text } from "react-native"
 export function HomeView() {
     //vista principal donde el usuario va a poder llavarlo a:
     //*link para ver la galeria
-    //*limk para ver la cueta
+    //*lik para ver la cueta
 
     return (
         <View style={styles.container}>
@@ -34,10 +34,14 @@ export function HomeView() {
 
 const styles = StyleSheet.create({
     container: {
-        padding: 60,
+        flex: 1,
+        padding: 70,
+        backgroundColor: '#a7dbd9ff',
+        minHeight: '100%',
+        
     },
     button: {
-        backgroundColor: '#095f95ff',
+        backgroundColor: '#3a80b7ff',
         paddingVertical: 10,
         paddingHorizontal: 30,
         borderRadius: 10,
